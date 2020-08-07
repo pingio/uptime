@@ -1,0 +1,31 @@
+{
+	"websites": [
+		{ 
+			"name": "kruke.net",
+			"urls": [
+				"http://kruke.net",
+				"https://kruke.net",
+				"http://www.kruke.net",
+				"https://www.kruke.net"
+			]
+		},
+		{
+			"name": "ping.lol",
+			"urls": [
+				"http://ping.lol",
+				"https://ping.lol",
+				"http://www.ping.lol",
+				"https://www.ping.lol"
+			]
+		},
+		{
+			"name": "ellieglad.com",
+			"urls": [
+				"http://ellieglad.com",
+				"https://ellieglad.com",
+				"http://www.ellieglad.com",
+				"https://www.ellieglad.com"
+			]
+		}
+	]
+}
