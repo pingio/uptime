@@ -3,38 +3,17 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/pingio/uptime/models"
 	"io/ioutil"
 	"log"
-	"net/http"
-	"net/smtp"
 	"os"
 )
-
-type Websites struct {
-	Websites []Website `json:"websites"`
-}
-
-type Website struct {
-	Name string   `json:"name"`
-	Urls []string `json:"urls"`
-}
-
-type RequestResponse struct {
-	URL      string
-	Response *http.Response
-}
-
-type Secret struct {
-	Email    string
-	To       string
-	Password string
-}
 
 func main() {
 
 	// Our two structs that we use.
-	var websites Websites
-	var secret Secret
+	var websites models.Websites
+	var secret models.Secret
 
 	///////////////
 	// Website file.
@@ -70,14 +49,14 @@ func main() {
 	///////////////////////////////////
 	// Ping websites and send response.
 	///////////////////////////////////
-	responses := make(chan RequestResponse)
+	responses := make(chan models.RequestResponse)
 
 	numResponses := 0
 
 	for _, website := range websites.Websites {
 		for _, url := range website.Urls {
 			numResponses++
-			go ping(url, responses)
+			go models.Ping(url, responses)
 		}
 	}
 
@@ -86,38 +65,8 @@ func main() {
 		if response.Response.StatusCode == 200 {
 			log.Println(response.URL, "returned 200.")
 		} else {
-			send(secret.Email, secret.Password, secret.To, response.URL, fmt.Sprintln(response.URL, "did not return a 200 OK, please investigate."))
+			models.Send(secret.Email, secret.Password, secret.To, response.URL, fmt.Sprintln(response.URL, "did not return a 200 OK, please investigate."))
 		}
 	}
 
-}
-
-func ping(website string, channel chan<- RequestResponse) {
-	response, err := http.Get(website)
-
-	if err != nil {
-		log.Println(website, "could not get connection.")
-	}
-	reqresp := RequestResponse{website, response}
-	channel <- reqresp
-}
-
-func send(email, password, sendTo, url, body string) {
-	from := email
-	pass := password
-	to := sendTo
-
-	msg := "From: " + from + "\n" +
-		"To: " + to + "\n" +
-		"Subject: " + url + " error\n\n" +
-		body
-
-	err := smtp.SendMail("smtp.gmail.com:587",
-		smtp.PlainAuth("", from, pass, "smtp.gmail.com"),
-		from, []string{to}, []byte(msg))
-
-	if err != nil {
-		log.Printf("smtp error: %s", err)
-		return
-	}
 }
